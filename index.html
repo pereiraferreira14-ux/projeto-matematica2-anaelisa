@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Análise Combinatória</title>
+    <style>
+        :root {
+            --bg-color: #4f3d8d;
+            --card-bg: #5a01c0;
+            --accent-color: #af85f1;
+            --accent-hover: #0284c7;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .formula-card {
+            background-color: rgba(15, 23, 42, 0.6);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        .formula-card h2 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .formula-card ul {
+            list-style: none;
+        }
+
+        .formula-card li {
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+
+        .formula-card span {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .inputs-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .inputs-row .form-group {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .result-card {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--accent-color);
+            text-align: center;
+            display: none;
+        }
+
+        .result-card.active {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            word-break: break-all;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Análise Combinatória</h1>
+
+        <div class="formula-card">
+            <h2>Fórmulas Matemáticas:</h2>
+            <ul>
+                <li><strong>Arranjo (A):</strong> <span>A(n, k) = n! / (n - k)!</span></li>
+                <li><strong>Permutação (P):</strong> <span>P(n) = n!</span></li>
+                <li><strong>Combinação (C):</strong> <span>C(n, k) = n! / [k! * (n - k)!]</span></li>
+            </ul>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Tipo de Cálculo</label>
+            <select id="type" onchange="toggleInputK()">
+                <option value="arranjo">Arranjo Simples — A(n, k)</option>
+                <option value="permutacao">Permutação Simples — P(n)</option>
+                <option value="combinacao">Combinação Simples — C(n, k)</option>
+            </select>
+        </div>
+
+        <div class="inputs-row">
+            <div class="form-group">
+                <label for="inputN">Total de elementos (n)</label>
+                <input type="number" id="inputN" min="0" placeholder="Ex: 5">
+            </div>
+
+            <div class="form-group" id="groupK">
+                <label for="inputK">Agrupamento (k)</label>
+                <input type="number" id="inputK" min="0" placeholder="Ex: 3">
+            </div>
+        </div>
+
+        <p id="error" class="error-message"></p>
+
+        <button onclick="calcular()">Calcular</button>
+
+        <div id="resultCard" class="result-card">
+            <div class="result-title">Resultado</div>
+            <div id="resultValue" class="result-value">0</div>
+        </div>
+    </div>
+
+    <script>
+        // Função para alternar a exibição do campo 'k' baseado no tipo selecionado
+        function toggleInputK() {
+            const type = document.getElementById('type').value;
+            const groupK = document.getElementById('groupK');
+            
+            if (type === 'permutacao') {
+                groupK.style.display = 'none';
+            } else {
+                groupK.style.display = 'block';
+            }
+            ocultarResultado();
+        }
+
+        // Função para calcular o fatorial de um número
+        function fatorial(num) {
+            if (num < 0) return 0;
+            if (num === 0 || num === 1) return 1n; // Usa BigInt para lidar com números grandes
+            let res = 1n;
+            for (let i = 2n; i <= BigInt(num); i++) {
+                res *= i;
+            }
+            return res;
+        }
+
+        function ocultarResultado() {
+            document.getElementById('resultCard').classList.remove('active');
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function mostrarErro(msg) {
+            const errorElement = document.getElementById('error');
+            errorElement.textContent = msg;
+            errorElement.style.display = 'block';
+            document.getElementById('resultCard').classList.remove('active');
+        }
+
+        function calcular() {
+            const type = document.getElementById('type').value;
+            const n = parseInt(document.getElementById('inputN').value);
+            const k = parseInt(document.getElementById('inputK').value);
+
+            // Validações
+            if (isNaN(n) || n < 0) {
+                mostrarErro('Por favor, insira um valor válido e não negativo para (n).');
+                return;
+            }
+
+            if (type !== 'permutacao' && (isNaN(k) || k < 0)) {
+                mostrarErro('Por favor, insira um valor válido e não negativo para (k).');
+                return;
+            }
+
+            if (type !== 'permutacao' && k > n) {
+                mostrarErro('O valor de (k) não pode ser maior que (n).');
+                return;
+            }
+
+            let resultado = 0n;
+
+            // Lógica dos cálculos
+            if (type === 'permutacao') {
+                resultado = fatorial(n);
+            } else if (type === 'arranjo') {
+                resultado = fatorial(n) / fatorial(n - k);
+            } else if (type === 'combinacao') {
+                resultado = fatorial(n) / (fatorial(k) * fatorial(n - k));
+            }
+
+            // Oculta erros anteriores e exibe o resultado
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('resultValue').textContent = resultado.toLocaleString('pt-BR');
+            document.getElementById('resultCard').classList.add('active');
+        }
+    </script>
+</body>
+</html>
